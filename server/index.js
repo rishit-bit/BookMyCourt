@@ -18,6 +18,15 @@ const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 const server = createServer(app);
+const PORT = process.env.PORT || 5000;
+
+// CORS configuration - support multiple origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://bookmycourt-green.vercel.app',
+  process.env.CLIENT_URL
+].filter(Boolean); // Remove any undefined values
+
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins.length > 0 ? allowedOrigins : 'http://localhost:3000',
@@ -25,18 +34,11 @@ const io = new Server(server, {
     credentials: true
   }
 });
-const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-// CORS configuration - support multiple origins
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://bookmycourt-green.vercel.app',
-  process.env.CLIENT_URL
-].filter(Boolean); // Remove any undefined values
 
 app.use(cors({
   origin: function (origin, callback) {
