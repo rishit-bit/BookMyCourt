@@ -36,7 +36,27 @@ if (process.env.CLIENT_URL) {
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins.length > 0 ? allowedOrigins : 'http://localhost:3000',
+    origin: function (origin, callback) {
+      // Allow requests with no origin
+      if (!origin) return callback(null, true);
+      
+      // Allow localhost in development
+      if (origin.includes('localhost')) {
+        return callback(null, true);
+      }
+      
+      // Allow any Vercel subdomain
+      if (origin.includes('.vercel.app')) {
+        return callback(null, true);
+      }
+      
+      // Check allowed origins
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        return callback(null, true);
+      }
+      
+      callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST'],
     credentials: true
   }
