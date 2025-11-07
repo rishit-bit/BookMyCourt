@@ -125,13 +125,19 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));
 
-// MongoDB connection
+// MongoDB connection (non-blocking - server will start even if MongoDB is still connecting)
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bookmycourt', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 30
+  socketTimeoutMS: 45000,
 })
 .then(() => console.log('🚀 Connected to MongoDB'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err);
+  // Don't exit - let the server continue running
+  // It will retry on the next request
+});
 
 // Socket.io authentication middleware
 io.use(async (socket, next) => {
@@ -242,10 +248,17 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-server.listen(PORT, () => {
+// Start server immediately (don't wait for MongoDB)
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`🎯 BookMyCourt server running on port ${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔌 WebSocket server ready for real-time notifications`);
+  console.log(`📡 Server is ready to accept connections`);
+});
+
+// Handle server errors
+server.on('error', (error) => {
+  console.error('❌ Server error:', error);
 });
 
 
