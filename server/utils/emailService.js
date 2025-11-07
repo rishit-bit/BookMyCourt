@@ -9,33 +9,53 @@ const createTransporter = () => {
   console.log('GMAIL_USER:', process.env.GMAIL_USER);
   console.log('GMAIL_PASS:', process.env.GMAIL_PASS ? '***SET***' : 'NOT SET');
   
+  // Priority 1: Use Gmail with explicit SMTP configuration (more reliable)
   if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
-    console.log('Using Gmail configuration');
+    console.log('Using Gmail SMTP configuration');
     return nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
-      }
+      },
+      tls: {
+        rejectUnauthorized: false,
+        ciphers: 'SSLv3'
+      },
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 10000,     // 10 seconds
+      socketTimeout: 30000,       // 30 seconds
+      pool: true,
+      maxConnections: 1,
+      maxMessages: 3
     });
   }
   
-  console.log('Using SMTP configuration');
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: false, 
-    auth: {
-      user: process.env.SMTP_USERNAME,
-      pass: process.env.SMTP_PASSWORD
-    },
-    tls: {
-      rejectUnauthorized: false
-    },
-    connectionTimeout: 10000, 
-    greetingTimeout: 5000,   
-      socketTimeout: 10000      // 10 seconds
+  // Priority 2: Use custom SMTP configuration
+  if (process.env.SMTP_HOST && process.env.SMTP_USERNAME && process.env.SMTP_PASSWORD) {
+    console.log('Using custom SMTP configuration');
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: parseInt(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD
+      },
+      tls: {
+        rejectUnauthorized: false
+      },
+      connectionTimeout: 30000,
+      greetingTimeout: 10000,
+      socketTimeout: 30000
     });
+  }
+  
+  // Fallback: Try Gmail service (less reliable but simpler)
+  console.log('No email configuration found - emails will not be sent');
+  throw new Error('Email configuration is missing. Please set GMAIL_USER and GMAIL_PASS or SMTP credentials.');
 };
 
 const generateVerificationToken = () => {
