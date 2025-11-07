@@ -169,9 +169,16 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code
+    });
     res.status(500).json({
       error: 'Login failed',
-      message: 'Something went wrong during login. Please try again.'
+      message: 'Something went wrong during login. Please try again.',
+      ...(process.env.NODE_ENV === 'development' && { details: error.message })
     });
   }
 });
