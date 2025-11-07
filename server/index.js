@@ -20,6 +20,9 @@ const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy - required for Render and rate limiting
+app.set('trust proxy', 1);
+
 // CORS configuration - support multiple origins
 const allowedOrigins = [
   'http://localhost:3000',
