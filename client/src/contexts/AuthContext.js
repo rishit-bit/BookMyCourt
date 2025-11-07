@@ -212,6 +212,20 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: errorMessage, needsVerification };
       }
       
+      // Handle network errors (no response from server)
+      if (!error.response) {
+        const isLocalhost = API_BASE_URL.includes('localhost');
+        const errorMessage = isLocalhost 
+          ? 'Cannot connect to server. Make sure the backend is running on localhost:5000'
+          : 'Cannot connect to server. Please check your internet connection and try again. If the problem persists, the API server may be down.';
+        dispatch({
+          type: AUTH_ACTIONS.LOGIN_FAILURE,
+          payload: errorMessage
+        });
+        toast.error(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+      
       // Handle other errors
       const errorMessage = error.response?.data?.message || 'Login failed. Please check your connection and try again.';
       const needsVerification = error.response?.data?.needsVerification;
