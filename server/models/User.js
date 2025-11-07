@@ -50,10 +50,6 @@ const userSchema = new mongoose.Schema({
       message: 'Date of birth cannot be in the future'
     }
   },
-  profilePicture: {
-    type: String,
-    default: null
-  },
   isVerified: {
     type: Boolean,
     default: false
@@ -80,7 +76,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'super_admin'],
+    enum: ['user', 'admin', 'super_admin', 'moderator'],
     default: 'user'
   },
   permissions: [{
@@ -105,11 +101,6 @@ const userSchema = new mongoose.Schema({
       sms: { type: Boolean, default: false },
       push: { type: Boolean, default: true }
     }
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin', 'moderator'],
-    default: 'user'
   },
   profilePhoto: {
     type: String,
