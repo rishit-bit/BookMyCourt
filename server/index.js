@@ -27,6 +27,13 @@ const allowedOrigins = [
   process.env.CLIENT_URL
 ].filter(Boolean); // Remove any undefined values
 
+// Add all Vercel preview and production URLs
+if (process.env.CLIENT_URL) {
+  const vercelUrl = new URL(process.env.CLIENT_URL);
+  // Allow all subdomains of vercel.app
+  allowedOrigins.push(`https://*.vercel.app`);
+}
+
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins.length > 0 ? allowedOrigins : 'http://localhost:3000',
@@ -45,11 +52,22 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Check if origin is in allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
     }
+    
+    // Allow any Vercel subdomain
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow in development
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
