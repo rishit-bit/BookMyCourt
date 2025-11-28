@@ -78,7 +78,7 @@ const AuthPage = () => {
           <LogoContainer>
             <Logo size="large" />
           </LogoContainer>
-          <Tagline>Smart court booking system for teams.</Tagline>
+          <Tagline>Smart court booking system.</Tagline>
         </HeaderSection>
 
         <FormContainer>

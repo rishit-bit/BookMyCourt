@@ -325,11 +325,7 @@ const sendWelcomeEmail = async (email, firstName) => {
                             <div style="font-size: 30px; margin-bottom: 10px;">🎯</div>
                             <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">Book your preferred time slots</p>
                           </div>
-                          <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #e2e8f0;">
-                            <div style="font-size: 30px; margin-bottom: 10px;">👥</div>
-                            <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">Invite friends to join your games</p>
-                          </div>
-                        </div>
+                        
                         
                         <div style="text-align: center;">
                           <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}" 
